@@ -1,0 +1,4 @@
+GIF
+===
+
+GIF, Animated GIF
