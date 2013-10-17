@@ -5,6 +5,8 @@
 #include <list>
 #include <cstring>
 
+using std::ofstream;
+
 typedef unsigned char GIFData;
 enum CODE {EXTENSION=0x21, IMAGE=0x2C, APPE=0xFF, GCE=0xF9, TERM=0x00, TRAILER=0x3B};
 enum SIZE {SIZE_GIF_HEADER=6, SIZE_LOGICAL_SCREEN=7, SIZE_GIF_IMAGE_HEADER=10, SIZE_GCE=8, SIZE_APPE=19};
@@ -40,7 +42,7 @@ class GIFLocalImage{
 
 		const int getImageSize(){return imageSize;}
 
-		GIFData* writeImageBlob(GIFdata* outputStream);
+		GIFData* writeImageBlob(GIFData* outputStream);
 		void writeImageFile(ofstream & out);
 };
 

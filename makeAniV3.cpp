@@ -3,7 +3,7 @@
 #include <Magick++.h>
 
 //#include "makeAniV3.h"
-//#include "aniGIFMaker.h"
+#include "AniGIFMaker.h"
 
 using std::cout;
 using std::cin;
@@ -11,7 +11,7 @@ using std::endl;
 
 using namespace Magick;
 
-void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, int *&files, const int argc, char **argv);//
+void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, char **outfilename, int *&files, const int argc, char **argv);//
 bool isCompatible(const char *input);
 
 int main(int argc, char** argv)
@@ -26,10 +26,22 @@ int main(int argc, char** argv)
 		files[i]=0;
 	}
 
-	parseArgs(tolerance, cOption, mode, &inputSize, files, argc, argv);
+	Geometry imgGeo(0, 0);
+	Geometry pageGeo(0, 0);
 
-	AniGIFMaker maker(tolerance, cOption, mode, &inputSize);
+	parseArgs(tolerance, cOption, mode, &inputSize, &outfilename, files, argc, argv);
+
+	AniGIFMaker maker(tolerance, cOption, mode, inputSize);
 	
+	int cnt=0;
+	while(files[cnt]!=0) {
+		cout << "argv : " << argv[files[cnt]] << endl;
+		maker.addToAniGIF(argv[files[cnt]]);
+		cnt++;
+	}
+	cout << "list : " << maker.getImgList() << endl;
+	maker.makeAniGIF(outfilename);
+
 	//DEBUG
 	/*
 	cout << tolerance << " " << cOption << " " << mode << " ";
@@ -61,7 +73,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, int *&files, const int argc, char **argv)
+void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, char **outfilename, int *&files, const int argc, char **argv)
 {
 	int fileCnt=0;
 
@@ -96,8 +108,10 @@ void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, i
 					}
 					i++;
 					break;
-				//case 'o': 
-					//outfilename
+				case 'o': 
+					*outfilename=argv[i+1];
+					i++;
+					break;	
 				default:
 					cout << "Not In Option! Ignoring..." << endl;
 					break;

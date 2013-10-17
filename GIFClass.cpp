@@ -11,7 +11,7 @@ bool safe(GIFData* ptr, int size, GIFData* endp)
 	return false;
 }
 
-GIF::GIF(char* filename):GCT(NULL), GCTSize(0), appExt(false), aniItr(0), imageCnt(0), sort(false)
+GIF::GIF(const char* filename):GCT(NULL), GCTSize(0), appExt(false), aniItr(0), imageCnt(0), sort(false)
 {
 	try{
 		ifstream inputFile(filename, ios_base::binary);
@@ -249,7 +249,7 @@ void GIF::getGIF(GIFData* ptr, int fileSize)
 
 const int GIF::getGIFSize(const int num)
 {
-	int size=this->gifSize;
+	int size=this->GIFSize;
 
 	list<GIFLocalImage*>::iterator localItr=this->imageList.begin();
 	if(num==ALLIMGS) {

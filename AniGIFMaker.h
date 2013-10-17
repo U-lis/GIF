@@ -21,16 +21,20 @@ class AniGIFMaker{
 		bool cOption;
 		char mode;
 		char *inputSize;
-		int sizeWidth;
-		int sizeHeight;
+		Geometry maxGeo;
 		list<GIF*> GIFImageList;
+		
+		void calcSize(Geometry imgGeo, Geometry pageGeo);
+		void setAniGIFProperties(Image *&image);
+		bool isNoresize(const Geometry imgGeo, const Geometry pageGeo);
 
 	public:
 		AniGIFMaker(double tolerance, bool cOption, char mode, char *inputSize);
 		~AniGIFMaker();
 
-		bool addToAniGIF(char* input);
-		void makeAniGIF();
+		void addToAniGIF(const char* input);
+		void makeAniGIF(const char *outfilename);
+		int getImgList(){return GIFImageList.size();}
 
 };
 

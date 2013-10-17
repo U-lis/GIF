@@ -30,7 +30,7 @@ class GIF{
 		bool sort;
 		bool appExt;
 		short aniItr;
-		list<GIFImage*> imageList;
+		list<GIFLocalImage*> imageList;
 		int imageCnt;
 		int GIFSize;
 		
@@ -38,7 +38,7 @@ class GIF{
 
 	public:
 		GIF(GIFData* stream, int fileSize);
-		GIF(char* filename);
+		GIF(const char* filename);
 		GIF(list<GIF*> gifList);
 		~GIF();
 
@@ -49,7 +49,7 @@ class GIF{
 		const bool getAppExt(){return appExt;}
 		const int getImageCnt(){return imageCnt;}
 		short getAniItr(){return aniItr;}
-		list<GIFImage*> & getImageList(){return imageList;}
+		list<GIFLocalImage*> & getImageList(){return imageList;}
 		const int getGIFSize(int i);
 		
 		void writeBlob(GIFData* outputStream, int num);	// set num to ALLIMGS(static const int -1) to Write All Images
