@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <Magick++.h>
+#include <cstdio>
 
 using namespace Magick;
 

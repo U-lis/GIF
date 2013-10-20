@@ -63,10 +63,11 @@ GIF::GIF(list<GIF*> gifList):GCT(NULL), GCTSize(0), appExt(false), aniItr(0), im
 		imageList.splice(imageItr, (*gifItr)->getImageList());
 		//cout << "splice : " << imageList.size() << endl;
 		imageCnt=imageList.size();
-	}	
-	
-	cout.setf(ios::dec);
-	cout << "MAX : " << maxW << " " << maxH << endl;
+	}
+
+	//DEBUG
+	//cout.setf(ios::dec);
+	//cout << "MAX : " << maxW << " " << maxH << endl;
 	logicalScreen[0]=maxW&0xFF;
 	logicalScreen[1]=maxW>>8&0xFF;
 	logicalScreen[2]=maxH&0xFF;
@@ -77,13 +78,13 @@ GIF::GIF(list<GIF*> gifList):GCT(NULL), GCTSize(0), appExt(false), aniItr(0), im
 	int width=0, height=0, xOffset=0, yOffset=0, xOff=0, yOff=0;
 		width=(((*((*imageItr)->getImageHeader()+6))<<8)|(*((*imageItr)->getImageHeader()+5)));
 		height=(((*((*imageItr)->getImageHeader()+8))<<8)|(*((*imageItr)->getImageHeader()+7)));
-		cout << "width : " << width << " height : " << height << endl;
+		//cout << "width : " << width << " height : " << height << endl;
 		xOffset=(maxW-width)/2;
 		yOffset=(maxH-height)/2;
-		cout << "xOffset : " << xOffset << " yOffset : " << yOffset << endl;
+		//cout << "xOffset : " << xOffset << " yOffset : " << yOffset << endl;
 		xOff=((*((*imageItr)->getImageHeader()+2))<<8) | (*((*imageItr)->getImageHeader()+1));
 		yOff=((*((*imageItr)->getImageHeader()+4))<<8) | (*((*imageItr)->getImageHeader()+3));
-		cout << "xOff : " << xOff << " y : " << yOff << endl;
+		//cout << "xOff : " << xOff << " y : " << yOff << endl;
 		*((*imageItr)->getImageHeader()+2)=(xOff+xOffset)>>8&0xFF;
 		*((*imageItr)->getImageHeader()+1)=(xOff+xOffset)&0xFF;
 		*((*imageItr)->getImageHeader()+4)=(yOff+yOffset)>>8&0xFF;
@@ -282,7 +283,7 @@ void GIF::writeBlob(GIFData* outputStream, int num)
 
 	if(appExt || num==ALLIMGS)
 	{
-		cout << "appEXT" << endl;
+		//cout << "appEXT" << endl;
 		memcpy(ptr, APP_EXT, 14);	ptr+=14;
 		*ptr++=0x03;	*ptr++=0x01;
 		*ptr++=(this->aniItr>>2)&0xFF;
@@ -325,7 +326,7 @@ void GIF::writeFile(char* filename, int num)
 	
 	if(appExt || num==ALLIMGS)
 	{
-		cout << "write appe" << endl;
+		//cout << "write appe" << endl;
 		output.write((char*)&APP_EXT[0], 14);
 		output.put(0x03).put(0x01);
 		output.put((this->getAniItr()>>2)&0xFF);

@@ -39,7 +39,6 @@ int main(int argc, char** argv)
 		maker.addToAniGIF(argv[files[cnt]]);
 		cnt++;
 	}
-	cout << "list : " << maker.getImgList() << endl;
 	maker.makeAniGIF(outfilename);
 
 	//DEBUG
@@ -117,7 +116,7 @@ void parseArgs(double &tolerance, bool &cOption, char &mode, char **inputSize, c
 					break;
 			}
 		} else {
-			cout << "Default Argv" << endl;
+			cout << "Default Argv : Consider it to Input Filename" << endl;
 			files[fileCnt++]=i;
 		}
 	}

@@ -72,14 +72,8 @@ void AniGIFMaker::addToAniGIF(const char* filename)
 
 	Blob *endBlob=new Blob();
 	inputImage->write(endBlob);
-	GIF *endGIF=new GIF((GIFData*)endBlob->data(), endBlob->length());
-	this->GIFImageList.push_back(endGIF);
-	cout << "GIFImageList : " << this->GIFImageList.size() << endl;
-
-	if(endGIF!=NULL) {
-		delete endGIF;
-		endGIF=NULL;
-	}
+	this->GIFImageList.push_back(new GIF((GIFData*)endBlob->data(), endBlob->length()));
+	
 	if(endBlob!=NULL) {
 		delete endBlob;
 		endBlob=NULL;
@@ -89,13 +83,13 @@ void AniGIFMaker::addToAniGIF(const char* filename)
 		inputImage=NULL;
 	}
 
+	//TODO
 	if(!this->cOption) {
 		for(int i=1; i<inputGIFImage->getImageCnt(); i++)
 		{
 			//make next Iamge, calcSize, resize+crop, push_back
 		}
 	}
-
 	cout << filename << " Add Done" << endl;
 }
 
@@ -104,13 +98,11 @@ void AniGIFMaker::makeAniGIF(const char *outfilename)
 	char filename[100];
 	if(outfilename!=NULL) {
 		strncpy(filename, outfilename, 100);
-	} else {
-	sprintf(filename, "makeAniV3_%s%s%s_t%f.gif",  this->cOption ? "c" : "", this->mode, this->inputSize, this->tolerance);
+	} else {	//TODO
+		sprintf(filename, "makeAniV3_%s%s%s_t%f.gif",  this->cOption ? "c" : "_", this->mode, this->inputSize, this->tolerance);
 	}
 
 	//DEBUG
-	cout << filename << endl;
-
 	GIF merged(this->GIFImageList);
 	merged.writeFile(filename, ALLIMGS);
 

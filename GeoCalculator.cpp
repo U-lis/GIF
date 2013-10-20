@@ -13,7 +13,6 @@ GeoCalculator::GeoCalculator(double _tolerance)
 
 GeoCalculator::~GeoCalculator()
 {
-	delete inputSize;
 }
 
 void GeoCalculator::calcGeo(Geometry &imgGeo, Geometry &pageGeo, Image *&image, char &mode, char *&inputSize)
