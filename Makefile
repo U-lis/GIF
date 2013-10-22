@@ -1,5 +1,8 @@
 ALL = GIFClass.cpp GeoCalculator.cpp AniGIFMaker.cpp makeAniV3.cpp 
 
+new : GIFLocal.cpp GIF.cpp
+	g++ -c GIFLocal.cpp GIF.cpp
+
 once : $(ALL)
 	c++ `Magick++-config --cxxflags --cppflags` -g -o makeAniV3 $(ALL) `Magick++-config --ldflags --libs`
 	cp makeAniV3 TEST
