@@ -146,12 +146,83 @@ void GIFLocalImage::readDataBlock(GIFBlobData *&ptr, const GIFBlobData *endp)
 	memcpy(this->dataBlock, start, this->dataBlockSize);
 }
 
-void writeImageBlob(GIFBlobData *&outputStream)
+void GIFLocalImage::writeImageBlob(GIFBlobData *&output)
 {
-	//TODO
+	if(this->GCE == NULL) {
+		//cout << "NOGCE" << endl;
+	} else {
+		memcpy(output, this->GCE, GCE_SIZE);
+		output += GCE_SIZE;
+	}
+
+	memcpy(output, this->imageHeader, GIF_LOCAL_IMAGE_HEADER_SIZE);
+	output += GIF_LOCAL_IMAGE_HEADER_SIZE;
+
+	if(this->LCT == NULL) {
+		//cout << "NOLCT" << endl;
+	} else {
+		memcpy(output, this->LCT, this->LCTSize);
+		output += this->LCTSize;
+	}
+
+	*output=this->LZW;
+	output++;
+
+	memcpy(output, this->dataBlock, this->dataBlockSize);
+	output += this->dataBlockSize;
 }
 
-void writeImageFile(ofstream &out) 
+void GIFLocalImage::writeImageFile(ofstream &output) 
 {
-	//TODO
+	if(this->GCE == NULL) {
+		//cout << "NOGCE" << endl;
+	} else {
+		output.write((char*)this->GCE, GCE_SIZE);
+	}
+
+	output.write((char*)this->imageHeader, GIF_LOCAL_IMAGE_HEADER_SIZE);
+
+	if(this->LCT == NULL) {
+		//cout << "NOLCT" << endl;
+	} else {
+		output.write((char*)this->LCT, this->LCTSize);
+	}
+	output.put((char)this->LZW);
+	output.write((char*)this->dataBlock, this->dataBlockSize);
+}
+
+void GIFLocalImage::setMaxScreenOffset(const int maxW, const int maxH)
+{
+	int xOff=((maxW-this->getImageWidth())/2)+this->getImageXOffset();
+	int yOff=((maxH-this->getImageHeight())/2)+this->getImageYOffset();
+
+	this->setImageOffset(xOff, yOff);
+}
+
+const int GIFLocalImage::getImageWidth()
+{
+	return this->imageHeader[5] | this->imageHeader[6]<<8;
+}
+
+const int GIFLocalImage::getImageHeight()
+{
+	return this->imageHeader[7] | this->imageHeader[8]<<8;
+}
+
+const int GIFLocalImage::getImageXOffset()
+{
+	return this->imageHeader[1] | this->imageHeader[2]<<8;
+}
+
+const int GIFLocalImage::getImageYOffset()
+{
+	return this->imageHeader[3] | this->imageHeader[4]<<8;
+}
+
+void GIFLocalImage::setImageOffset(const int xOff, const int yOff)
+{
+	this->imageHeader[1] = xOff    & 0xFF;
+	this->imageHeader[2] = xOff>>8 & 0xFF;
+	this->imageHeader[3] = yOff    & 0xFF;
+	this->imageHeader[4] = yOff>>8 & 0xFF;
 }

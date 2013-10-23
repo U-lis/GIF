@@ -1,4 +1,5 @@
 *~
 *.[ao]
 makeAniV3
-.swp
+*.swp
+*.gch

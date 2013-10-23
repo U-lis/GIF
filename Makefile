@@ -1,4 +1,4 @@
-ALL = GIFClass.cpp GeoCalculator.cpp AniGIFMaker.cpp makeAniV3.cpp 
+ALL = GIF.cpp GIFLocal.cpp GeoCalculator.cpp AniGIFMaker.cpp makeAniV3.cpp 
 
 new : GIFLocal.cpp GIF.cpp
 	g++ -c GIFLocal.cpp GIF.cpp

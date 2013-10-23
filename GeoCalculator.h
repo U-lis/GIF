@@ -4,6 +4,7 @@
 #include <iostream>
 #include <Magick++.h>
 #include <cstdio>
+#include <cstring>
 
 using namespace Magick;
 

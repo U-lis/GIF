@@ -6,7 +6,7 @@
 #include <list>
 #include <Magick++.h>
 
-#include "GIFClass.h"
+#include "GIF.h"
 
 using std::cout;
 using std::endl;
@@ -27,6 +27,9 @@ class AniGIFMaker{
 		void calcSize(Geometry imgGeo, Geometry pageGeo);
 		void setAniGIFProperties(Image *&image);
 		bool isNoresize(const Geometry imgGeo, const Geometry pageGeo);
+		void makeInputImage(GIF *&inputGIFImage, int &cnt, Image *&inputImage);
+		void cropImage(Image *&inputImage);
+		void insertEndGIF(Image *&inputImage);
 
 	public:
 		AniGIFMaker(double tolerance, bool cOption, char mode, char *inputSize);

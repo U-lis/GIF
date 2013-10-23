@@ -2,6 +2,7 @@
 #define _GIF_LOCAL_H
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <cstdlib>
 
@@ -27,6 +28,11 @@ class GIFLocalImage {
 		void setGCTtoLCT(const GIFBlobData *GCT, const int GCTSize, const bool sorted);
 		void readImage(const GIFBlobData *GCT, const int GCTSize, const bool sorted, GIFBlobData *&ptr, const GIFBlobData *endp);
 		void readDataBlock(GIFBlobData *&ptr, const GIFBlobData *endp);
+		const int getImageWidth();
+		const int getImageHeight();
+		const int getImageXOffset();
+		const int getImageYOffset();
+		void setImageOffset(const int xOff, const int yOff);
 
 
 		void ignore(GIFBlobData *&ptr);
@@ -36,7 +42,10 @@ class GIFLocalImage {
 		GIFLocalImage(const GIFBlobData *GCT, const int GCTSize, const bool sorted, GIFBlobData *&ptr, const GIFBlobData *endp);
 		~GIFLocalImage();
 
-		void writeImageBlob(GIFBlobData *&outputStream);
-		void writeImageFile(ofstream &out);
+		const int getLocalImageSize(){return this->localImageSize;}
+		void setMaxScreenOffset(const int maxW, const int maxH);
+
+		void writeImageBlob(GIFBlobData *&output);
+		void writeImageFile(ofstream &output);
 };
 #endif	// _GIF_LOCAL_H

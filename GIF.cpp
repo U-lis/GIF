@@ -48,16 +48,30 @@ GIF::GIF(const char *filename)
 	}	
 }
 
-GIF::GIF(const GIFBlobData *inputStream, const int fileSize)
+GIF::GIF(GIFBlobData *inputStream, const int fileSize)
 	:GCT(NULL), GCTSize(0), sorted(false), appE(false), imgCnt(0), GIFSize(0)
 {
 	readGIF(inputStream, fileSize);
 }
 
-GIF::GIF(list<GIF*> GIFList)
+GIF::GIF(const list<GIF*> &GIFList)
 	:GCT(NULL), GCTSize(0), sorted(false), appE(false), imgCnt(0), GIFSize(0)
 {
-	//TODO
+	list<GIF*>::const_iterator itr = GIFList.begin();
+	memcpy(GIFHeader, (*itr)->getGIFHeader(), GIF_HEADER_SIZE);
+	memcpy(logicalScreen, (*itr)->getLogicalScreen(), LOGICAL_SCREEN_SIZE);
+	logicalScreen[4]&=0x70;
+	appE=true;
+	
+	this->setMaxLogicalScreen(GIFList);
+	
+	for(itr=GIFList.begin(); itr!=GIFList.end(); itr++) {
+		this->localImageList.assign((*itr)->getLocalImageList().begin(), (*itr)->getLocalImageList().end());
+	}
+
+	this->imgCnt = this->localImageList.size();
+
+	this->setLocalImageScreen();
 }
 
 GIF::~GIF()
@@ -67,16 +81,11 @@ GIF::~GIF()
 			delete *itr;
 		}
 	}
-	if(this->GCT!=NULL) {
-		delete[] GCT;
-		GCT=NULL;
-	}
 }
 
-void GIF::readGIF(const GIFBlobData *inputStream, const int fileSize)
+void GIF::readGIF(GIFBlobData *inputStream, const int fileSize)
 {
-	GIFBlobData *ptr=NULL;
-	*ptr=*inputStream;
+	GIFBlobData *ptr = inputStream;
 	const GIFBlobData *endp=ptr+fileSize;
 	this->readGIFHeader(ptr, endp);
 	this->readLogicalScreen(ptr, endp);
@@ -95,6 +104,13 @@ void GIF::readGIF(const GIFBlobData *inputStream, const int fileSize)
 				break;
 		}
 	}
+
+	if(GCT != NULL) {
+		delete[] this->GCT;
+		this->GCT = NULL;
+	}
+	this->GCTSize = 0;
+	this->imgCnt = this->localImageList.size();
 	cout << "GIF File Read Done" << endl;
 }
 
@@ -120,7 +136,7 @@ bool GIF::isGIF()
 	if(!(this->GIFHeader[0] == 'G' && this->GIFHeader[1] == 'I' && this->GIFHeader[2] == 'F')) {
 		return false;
 	}
-	if(!(this->GIFHeader[3] == '8' && (this->GIFHeader[5] == '9' || this->GIFHeader[4] == '7') && this->GIFHeader[5] == 'a')) {
+	if(!(this->GIFHeader[3] == '8' && (this->GIFHeader[4] == '9' || this->GIFHeader[4] == '7') && this->GIFHeader[5] == 'a')) {
 		return false;
 	}
 	if(this->GIFHeader[4] == '7')
@@ -191,13 +207,113 @@ void GIF::readExtension(GIFBlobData *&ptr, const GIFBlobData *endp)
 	}
 }
 
-void writeBlob(GIFBlobData *outputStream)
+void GIF::writeBlob(GIFBlobData *outputStream, const int imgNum)
 {
-	//TODO
+	GIFBlobData *ptr = outputStream;
+
+	memcpy(ptr, this->GIFHeader, GIF_HEADER_SIZE);
+	ptr += GIF_HEADER_SIZE;
+	memcpy(ptr, this->logicalScreen, LOGICAL_SCREEN_SIZE);
+	ptr += LOGICAL_SCREEN_SIZE;
+
+	if(this->appE || imgNum == ALLIMGS) {
+		memcpy(ptr, APP_EXT, APPE_SIZE);
+		ptr += APPE_SIZE;
+	}
+
+	list<GIFLocalImage*>::iterator imgItr=this->localImageList.begin();
+	
+	if(imgNum == ALLIMGS) {
+		for(; imgItr != this->localImageList.end(); imgItr++) {
+			(*imgItr)->writeImageBlob(ptr);
+		}
+	} else {
+		for(int i=0; i<imgNum; i++)
+			imgItr++;
+		(*imgItr)->writeImageBlob(ptr);
+	}
+	*ptr = TRAILER_CODE;
 }
 
-void writeFile(char* filename)
+void GIF::writeFile(const char* filename, const int imgNum)
 {
-	//TODO
+	ofstream output(filename, ios_base::binary);
+	if(!output) {
+		cout << "Writing File Open Failed" << endl;
+		return;
+	}
+
+	output.write((char*)this->GIFHeader, GIF_HEADER_SIZE);
+	output.write((char*)this->logicalScreen, LOGICAL_SCREEN_SIZE);
+
+	if(this->appE || imgNum == ALLIMGS) {
+		output.write((char*)APP_EXT, APPE_SIZE);
+	}
+
+	list<GIFLocalImage*>::iterator imgItr = this->localImageList.begin();
+
+	if(imgNum == ALLIMGS) {
+		for(; imgItr != this->localImageList.end(); imgItr++)
+			(*imgItr)->writeImageFile(output);
+	} else {
+		for(int i=0; i<imgNum; i++)
+			imgItr++;
+		(*imgItr)->writeImageFile(output);
+	}
+	output.put(TRAILER_CODE);
+	output.close();
 }
 
+void GIF::setMaxLogicalScreen(const list<GIF*> &GIFList)
+{
+	int maxW = 0, maxH = 0;
+
+	list<GIF*>::const_iterator itr = GIFList.begin();
+	for(; itr != GIFList.end(); itr++) {
+		if((*itr)->getLogicalWidth() > maxW) {
+			maxW = (*itr)->getLogicalWidth();
+		}
+
+		if((*itr)->getLogicalHeight() > maxH) {
+			maxH = (*itr)->getLogicalHeight();
+		}
+	}
+
+	this->logicalScreen[0] = maxW    & 0xFF;
+	this->logicalScreen[1] = maxW>>8 & 0xFF;
+	this->logicalScreen[2] = maxH    & 0xFF;
+	this->logicalScreen[3] = maxH>>8 & 0xFF;
+}
+
+const int GIF::getLogicalWidth() {
+	return this->logicalScreen[0] | this->logicalScreen[1]<<8;
+}
+
+const int GIF::getLogicalHeight() {
+	return this->logicalScreen[2] | this->logicalScreen[3]<<8;
+}
+
+void GIF::setLocalImageScreen() 
+{
+	list<GIFLocalImage*>::iterator itr = this->localImageList.begin();
+
+	for(; itr != this->localImageList.end(); itr++) {
+		(*itr)->setMaxScreenOffset(this->getLogicalWidth(), this->getLogicalHeight());
+	}
+}
+
+const int GIF::getGIFSize(const int imgNum)
+{	
+	int size=this->GIFSize;
+	
+	list<GIFLocalImage*>::const_iterator imgItr = this->localImageList.begin();
+
+	if(imgNum == ALLIMGS) {
+		for(; imgItr != this->localImageList.end(); imgItr++)
+			size += (*imgItr)->getLocalImageSize();
+	} else {
+		for(int i=0; i<imgNum; i++)
+			imgItr++;
+		size += (*imgItr)->getLocalImageSize();
+	}
+}
